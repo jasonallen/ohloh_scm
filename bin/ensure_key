@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+# usage:
+# ensure_key <hostname>
+#
+# example:
+# ensure_key opensource.conformal.com
+#
+# This tool will check to see if the host's ssh key is already in
+# ~/.ssh/known_hosts. If not, it adds it.
+
+host_file="$HOME/.ssh/known_hosts"
+if [ ! -e $host_file ]; then
+  echo "No hosts file detecting, creating one..."
+  `touch $host_file`
+fi
+
+key_scan=`ssh-keyscan $1 2> /dev/null`
+host_key=`echo $key_scan | cut -d ' ' -f3`
+
+if grep -q $host_key $host_file
+  then echo "Key found, nothing to do"
+  else
+    `echo $key_scan >> $host_file`
+    echo "Added key"
+fi
+exit 0
